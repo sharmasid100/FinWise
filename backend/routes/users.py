@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from backend.models import User  # assuming your SQLAlchemy models are in models.py
-from routes.auth_utils import token_required
+from backend.routes.auth_utils import token_required
 from backend import db
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
