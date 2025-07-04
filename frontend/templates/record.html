@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinDash - Record Transaction</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href = "{{url_for('static' , filename = 'style/style.css')}}">
+    <style>
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: row;
+        overflow-x: hidden;
+        opacity: 0;
+        transform: translateY(10px);
+        transition:
+          opacity 0.6s ease-out,
+          transform 0.6s ease-out;
+      }
+
+      body.loaded {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 0 30px;
+        margin-bottom: 40px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-cyan);
+      }
+
+      .logo i {
+        font-size: 2rem;
+      }
+
+
+
+      /* Main Content */
+      .main-content {
+        flex: 1;
+        padding: 40px;
+        overflow-y: auto;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* Transaction Page Layout */
+      .transaction-page {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .transaction-header {
+        margin-bottom: 40px;
+      }
+
+      .transaction-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-cyan),
+          var(--income-green)
+        );
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .subtitle {
+        color: var(--text-faded);
+        font-size: 1.1rem;
+      }
+
+      /* Form Sections */
+      .form-section {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      .top-section,
+      .middle-section {
+        justify-content: space-between;
+      }
+
+      .bottom-section {
+        flex-direction: column;
+      }
+
+      /* Form Cards */
+      .form-card {
+        flex: 1;
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        border: 1px solid var(--card-border);
+      }
+
+      .card-label {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-faded);
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+
+      .card-footer {
+        font-size: 0.85rem;
+        color: var(--text-faded);
+        margin-top: 15px;
+        opacity: 0.7;
+      }
+
+      /* Amount Card */
+      .amount-card {
+        border-top: 4px solid var(--accent-cyan);
+      }
+
+      .amount-input-container {
+        position: relative;
+        background-color: transparent;
+      }
+
+      .currency-symbol {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.5rem;
+        color: var(--text-light);
+        font-weight: bold;
+      }
+
+      .amount-input {
+        width: 100%;
+        padding: 18px 20px 18px 50px;
+        font-size: 1.5rem;
+        background-color: var(--bg-dark);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+      }
+
+      .amount-input:focus {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      /* Type Card */
+      .type-card {
+        border-top: 4px solid var(--income-green);
+      }
+
+      .type-toggle-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .type-radio {
+        display: none;
+      }
+
+      .type-label {
+        flex: 1;
+        padding: 18px;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 500;
+        font-size: 1.1rem;
+      }
+
+      .income-label {
+        background-color: rgba(0, 255, 170, 0.1);
+        color: var(--income-green);
+        border: 1px solid rgba(0, 255, 170, 0.3);
+      }
+
+      .expense-label {
+        background-color: rgba(255, 107, 107, 0.1);
+        color: var(--expense-red);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+      }
+
+      .type-radio:checked + .income-label {
+        background-color: var(--income-green);
+        color: var(--bg-dark);
+        box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+      }
+
+      .type-radio:checked + .expense-label {
+        background-color: var(--expense-red);
+        color: var(--bg-dark);
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+      }
+
+      /* Date Card */
+      .date-card {
+        border-top: 4px solid var(--accent-dark);
+      }
+
+      .date-input-container {
+        position: relative;
+        background-color: transparent;
+      }
+
+      .date-input-container i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-faded);
+        font-size: 1.2rem;
+      }
+
+      .date-input {
+        width: 100%;
+        padding: 18px 20px 18px 45px;
+        font-size: 1.1rem;
+        background-color: var(--bg-dark);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-light);
+        transition: all 0.3s ease;
+      }
+
+      .date-input:focus {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      /* Category Card */
+      .category-card {
+        border-top: 4px solid var(--expense-red);
+      }
+
+      .category-select-container {
+        position: relative;
+        border-color: var(--card-border);
+      }
+
+      .category-select {
+        width: 100%;
+        padding: 18px 20px;
+        font-size: 1.1rem;
+        background-color: var(--bg-dark);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-light);
+        appearance: none;
+        transition: all 0.3s ease;
+      }
+
+      .category-select:focus {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      .category-select option {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+      }
+
+      /* Notes Card */
+      .notes-card {
+        border-top: 4px solid var(--text-faded);
+      }
+
+      .notes-input {
+        width: 100%;
+        padding: 15px;
+        font-size: 1rem;
+        background-color: var(--bg-dark);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-light);
+        min-height: 80px;
+        resize: vertical;
+        transition: all 0.3s ease;
+      }
+
+      .notes-input:focus {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      /* Submit Button */
+      .submit-button {
+        width: 100%;
+        padding: 20px;
+        background: linear-gradient(
+          90deg,
+          var(--accent-cyan),
+          var(--accent-dark)
+        );
+        color: var(--bg-dark);
+        border: none;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .submit-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+      }
+
+      .submit-button:active {
+        transform: translateY(0);
+      }
+
+      /* Notification */
+      .notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 16px 24px;
+        border-radius: 8px;
+        background-color: var(--income-green);
+        color: var(--bg-dark);
+        font-weight: 500;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .notification.error {
+        background-color: var(--expense-red);
+        color: var(--text-light);
+      }      
+
+      @media (max-width: 480px) {
+        .main-content {
+          padding: 80px 15px 15px;
+        }
+
+        .form-card {
+          padding: 20px;
+        }
+
+        .transaction-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+
+        .amount-input {
+          font-size: 1.1rem;
+          padding: 15px 15px 15px 40px;
+        }
+
+        .currency-symbol {
+          font-size: 1.2rem;
+          left: 12px;
+        }
+
+        .type-label {
+          font-size: 1rem;
+          padding: 15px;
+        }
+
+        .date-input,
+        .category-select {
+          padding: 15px 15px 15px 40px;
+        }
+
+        .submit-button {
+          padding: 18px;
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Mobile Overlay */
+      .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+
+      .mobile-overlay.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    {%extends "base.html"%}
+    {%block content%}
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinDash</span>
+            </div>
+            <ul class="side_nav-menu">
+                <li class="side_nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="side_nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('record') }}" class="side_nav-link active">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Record Transaction</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('transactions') }}" class="side_nav-link">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('goals') }}" class="side_nav-link">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Goals</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('settings') }}" class="side_nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+            <a href="{{ url_for('home') }}" class="side_nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+            </ul>
+        </div>
+
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="transaction-page">
+        <div class="transaction-header">
+          <h1>Record New Transaction</h1>
+          <p class="subtitle">Track your financial flows in real-time</p>
+        </div>
+
+        <form class="transaction-form" id="transactionForm">
+          <!-- Top Section: Amount + Type -->
+          <div class="form-section top-section">
+            <!-- Amount Card -->
+            <div class="form-card amount-card">
+              <label for="amount" class="card-label">Amount</label>
+              <div class="amount-input-container">
+                <span class="currency-symbol">₹</span>
+                <input
+                  type="number"
+                  step="1000"
+                  id="amount"
+                  class="amount-input"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+              <div class="card-footer">Enter transaction value</div>
+            </div>
+
+            <!-- Type Card -->
+            <div class="form-card type-card">
+              <label class="card-label">Transaction Type</label>
+              <div class="type-toggle-container">
+                <input
+                  type="radio"
+                  id="income"
+                  name="type"
+                  value="income"
+                  class="type-radio"
+                  required
+                />
+                <label for="income" class="type-label income-label">
+                  <i class="fas fa-arrow-down"></i>
+                  <span>Income</span>
+                </label>
+
+                <input
+                  type="radio"
+                  id="expense"
+                  name="type"
+                  value="expense"
+                  class="type-radio"
+                />
+                <label for="expense" class="type-label expense-label">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>Expense</span>
+                </label>
+              </div>
+              <div class="card-footer">Select money direction</div>
+            </div>
+          </div>
+
+          <!-- Middle Section: Date + Category -->
+          <div class="form-section middle-section">
+            <!-- Date Card -->
+            <div class="form-card date-card">
+              <label for="date" class="card-label">Date</label>
+              <div class="date-input-container">
+                <i class="far fa-calendar"></i>
+                <input type="date" id="date" class="date-input" required />
+              </div>
+              <div class="card-footer">When it happened</div>
+            </div>
+
+            <!-- Category Card -->
+            <div class="form-card category-card">
+              <label for="category" class="card-label">Category</label>
+              <div class="category-select-container">
+                <select id="category" class="category-select" required>
+                  <option value="" disabled selected>Choose category</option>
+                  <option value="salary">Salary</option>
+                  <option value="freelance">Freelance</option>
+                  <option value="investments">Investments</option>
+                  <option value="groceries">Groceries</option>
+                  <option value="rent">Rent</option>
+                  <option value="utilities">Utilities</option>
+                  <option value="entertainment">Entertainment</option>
+                  <option value="transportation">Transportation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="card-footer">Select category type</div>
+            </div>
+          </div>
+
+          <!-- Bottom Section: Notes + Submit -->
+          <div class="form-section bottom-section">
+            <!-- Notes Card -->
+            <div class="form-card notes-card">
+              <label for="description" class="card-label">Notes</label>
+              <textarea
+                id="description"
+                class="notes-input"
+                rows="2"
+                placeholder="Any additional details..."
+              ></textarea>
+              <div class="card-footer">Optional information</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="submit-button">
+              <i class="fas fa-plus-circle"></i>
+              <span>Record Transaction</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+      <i class="fas fa-check-circle"></i>
+      <span id="notification-message">Transaction recorded successfully!</span>
+    </div>
+    {%endblock%}
+    {%block scripts%}
+    <script>
+      // Page loading animation
+      window.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          document.body.classList.add("loaded");
+        }, 50);
+      });
+
+// Mobile menu functionality
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebar = document.querySelector(".sidebar"); // Changed to class selector
+const mobileOverlay = document.getElementById("mobileOverlay");
+let isMobileMenuOpen = false;
+
+function toggleMobileMenu() {
+    isMobileMenuOpen = !isMobileMenuOpen;
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
+
+    if (isMobileMenuOpen) {
+        sidebar.classList.add("mobile-open");
+        mobileOverlay.classList.add("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times"></i>';
+        mobileMenuBtn.style.left = 'calc(280px + 20px)'; // Adjust based on sidebar width
+    } else {
+        sidebar.classList.remove("mobile-open");
+        mobileOverlay.classList.remove("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.style.left = '20px';
+    }
+}
+
+mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+mobileOverlay.addEventListener("click", toggleMobileMenu);
+
+// Close mobile menu when clicking on navigation links
+document.querySelectorAll(".side_nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+        if (isMobileMenuOpen) {
+            toggleMobileMenu();
+        }
+    });
+});
+
+      // Set default date to today
+      const dateInput = document.getElementById("date");
+      if (dateInput) {
+        dateInput.valueAsDate = new Date();
+      }
+
+      // Format amount on blur
+      const amountInput = document.getElementById("amount");
+      if (amountInput) {
+        amountInput.addEventListener("blur", function () {
+          if (this.value) {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+              this.value = value.toFixed(2);
+            }
+          }
+        });
+      }
+
+      // Category filtering based on transaction type
+      const categories = {
+        income: ["salary", "freelance", "investments", "other"],
+        expense: [
+          "groceries",
+          "rent",
+          "utilities",
+          "entertainment",
+          "transportation",
+          "other",
+        ],
+      };
+
+      function updateCategories() {
+        const typeInput = document.querySelector('input[name="type"]:checked');
+        const categorySelect = document.getElementById("category");
+
+        if (!typeInput || !categorySelect) return;
+
+        const selectedType = typeInput.value;
+
+        // Clear existing options except first
+        while (categorySelect.options.length > 1) {
+          categorySelect.remove(1);
+        }
+
+        // Add categories for selected type
+        categories[selectedType].forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat;
+          option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+          categorySelect.appendChild(option);
+        });
+
+        // Reset category selection
+        categorySelect.value = "";
+      }
+
+      // Listen for transaction type changes
+      document.querySelectorAll('input[name="type"]').forEach((radio) => {
+        radio.addEventListener("change", updateCategories);
+      });
+
+      // Form submission
+      const transactionForm = document.getElementById("transactionForm");
+      if (transactionForm) {
+        transactionForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Get form data
+          const formData = new FormData(this);
+          const amount = parseFloat(formData.get("amount"));
+          const type = formData.get("type");
+          const category = formData.get("category");
+          const date = formData.get("date");
+          const description = formData.get("description");
+
+          // Validation
+          if (isNaN(amount) || amount <= 0) {
+            showNotification("Please enter a valid amount", "error");
+            return;
+          }
+
+          if (!type) {
+            showNotification("Please select transaction type", "error");
+            return;
+          }
+
+          if (!category) {
+            showNotification("Please select a category", "error");
+            return;
+          }
+
+          if (!date) {
+            showNotification("Please select a date", "error");
+            return;
+          }
+
+          try {
+            // Show loading state
+            const submitBtn = document.querySelector(".submit-button");
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            }
+
+            // Simulate API call
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            // Success
+            showNotification("Transaction recorded successfully!");
+
+            // Reset form but preserve type and date
+            this.reset();
+            if (dateInput) dateInput.valueAsDate = new Date();
+          } catch (error) {
+            showNotification("Failed to save transaction", "error");
+          } finally {
+            // Reset submit button
+            const submitBtn = document.querySelector(".submit-button");
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = `
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Record Transaction</span>
+                            <i class="fas fa-arrow-right"></i>
+                        `;
+            }
+          }
+        });
+      }
+
+      // Notification system
+      function showNotification(message, type = "success") {
+        const notification = document.getElementById("notification");
+        if (!notification) return;
+
+        // Clear existing classes
+        notification.classList.remove("show", "error", "success");
+
+        // Update content
+        notification.innerHTML = `
+                <i class="fas fa-${type === "success" ? "check-circle" : "exclamation-circle"}"></i>
+                <span>${message}</span>
+            `;
+
+        // Set type class
+        notification.classList.add(type);
+
+        // Show notification
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 10);
+
+        // Hide after 3 seconds
+        setTimeout(() => {
+          notification.classList.remove("show");
+        }, 3000);
+      }
+
+      // Initialize categories for default income type
+      document.addEventListener("DOMContentLoaded", function () {
+        const incomeRadio = document.getElementById("income");
+        if (incomeRadio) {
+          incomeRadio.checked = true;
+          updateCategories();
+        }
+      });
+    </script>
+    {%endblock%}
+  </body>
+</html>

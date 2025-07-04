@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | FinWise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+    <style>
+        :root {
+            --login_bg_dark: #0a1410;
+            --login_bg_darker: #07120c;
+            --login_card_bg: #121e16;
+            --login_text_light: #ffffff;
+            --login_text_faded: #c2f7e4;
+            --login_accent: #00ffc3;
+            --login_accent_light: rgba(0, 255, 195, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--login_bg_dark) 0%, var(--login_bg_darker) 100%);
+            color: var(--login_text_light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.6;
+        }
+
+        .error-message {
+            background-color: rgba(255, 77, 77, 0.1);
+            color: #ff4d4d;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #ff4d4d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-message i {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login_box">
+        <div class="login_header">
+            <h2 class="login_fade_item" style="--i: 0">Welcome to FinWise</h2>
+            <p class="login_fade_item" style="--i: 0.5">Take control of your financial future</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-message login_fade_item" style="--i: 0.8">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/register" class="login_form" id="registerForm">
+            <div class="login_input_group">
+                <label for="name" class="login_label login_fade_item" style="--i: 1">
+                    <i class="fas fa-user"></i> Full Name
+                </label>
+                <input type="text" id="name" name="name" class="login_input login_fade_item" style="--i: 1.1" required
+                    placeholder="Enter your full name" value="{{ name if name }}">
+            </div>
+
+            <div class="login_input_group">
+                <label for="user_id" class="login_label login_fade_item" style="--i: 1.5">
+                    <i class="fas fa-at"></i> User ID
+                </label>
+                <input type="text" id="user_id" name="user_id" class="login_input login_fade_item" style="--i: 1.6"
+                    required placeholder="Choose your user ID" value="{{ user_id if user_id }}">
+            </div>
+
+            <div class="login_input_group">
+                <label for="email" class="login_label login_fade_item" style="--i: 2">
+                    <i class="fas fa-envelope"></i> Email
+                </label>
+                <input type="email" id="email" name="email" class="login_input login_fade_item" style="--i: 2.1"
+                    required placeholder="Enter your email" value="{{ email if email }}">
+            </div>
+
+            <div class="login_input_group">
+                <label for="password" class="login_label login_fade_item" style="--i: 2.5">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input type="password" id="password" name="password" class="login_input login_fade_item"
+                    style="--i: 2.6" required placeholder="At least 6 characters with letters and numbers"
+                    pattern="^(?=.*[A-Za-z])(?=.*\d).{6,}$">
+            </div>
+
+            <div class="login_input_group">
+                <label for="confirm_password" class="login_label login_fade_item" style="--i: 3">
+                    <i class="fas fa-lock"></i> Confirm Password
+                </label>
+                <input type="password" id="confirm_password" name="confirm_password" class="login_input login_fade_item"
+                    style="--i: 3.1" required placeholder="Re-enter your password">
+            </div>
+
+            <button type="submit" class="login_button login_fade_item" style="--i: 3.5">
+                <span class="login_button_text">Register</span>
+                <i class="fas fa-user-plus login_button_icon"></i>
+            </button>
+
+            <div class="login_footer login_fade_item" style="--i: 4">
+                Already have an account? <a href="/login">Login here</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Animation for form elements
+            const items = document.querySelectorAll(".login_fade_item");
+            items.forEach(item => {
+                const delay = parseFloat(item.style.getPropertyValue('--i')) || 0;
+                setTimeout(() => {
+                    item.classList.add("visible");
+                }, delay * 300);
+            });
+
+            // Password validation feedback
+            const passwordInput = document.getElementById('password');
+            const hints = {
+                length: document.querySelector('.hint.length'),
+                letter: document.querySelector('.hint.letter'),
+                number: document.querySelector('.hint.number')
+            };
+
+            passwordInput.addEventListener('input', () => {
+                const value = passwordInput.value;
+                hints.length.classList.toggle('valid', value.length >= 6);
+                hints.letter.classList.toggle('valid', /[A-Za-z]/.test(value));
+                hints.number.classList.toggle('valid', /\d/.test(value));
+            });
+
+            // Confirm password validation
+            const confirmPassword = document.getElementById('confirm_password');
+            confirmPassword.addEventListener('input', () => {
+                if (confirmPassword.value !== passwordInput.value) {
+                    confirmPassword.setCustomValidity("Passwords don't match");
+                } else {
+                    confirmPassword.setCustomValidity('');
+                }
+            });
+
+            // Form submission animation
+            const form = document.getElementById('registerForm');
+            form.addEventListener('submit', () => {
+                const button = form.querySelector('button[type="submit"]');
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+                button.disabled = true;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | FinWise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+  <style>
+    :root {
+  --login_bg_dark: #0a1410;
+  --login_bg_darker: #07120c;
+  --login_card_bg: #121e16;
+  --login_text_light: #ffffff;
+  --login_text_faded: #c2f7e4;
+  --login_accent: #00ffc3;
+  --login_accent_light: rgba(0, 255, 195, 0.2);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, var(--login_bg_dark) 0%, var(--login_bg_darker) 100%);
+  color: var(--login_text_light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+  line-height: 1.6;
+}
+.error-message {
+  background-color: rgba(255, 77, 77, 0.1);
+  color: #ff4d4d;
+  padding: 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ff4d4d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error-message i {
+  font-size: 1.1rem;
+}
+  </style>
+</head>
+<body>
+  <div class="login_box">
+    <div class="login_header">
+      <h2 class="login_fade_item" style="--i: 0">Welcome to FinWise</h2>
+      <p class="login_fade_item" style="--i: 0.5">Take control of your financial future</p>
+    </div>
+    <!-- Add this near the top of your form -->
+{% if error %}
+<div class="error-message">
+  {{ error }}
+</div>
+{% endif %}
+
+    <form method="POST" action="/login" class="login_form">
+      <div class="login_input_group">
+        <label for="user_id" class="login_label login_fade_item" style="--i: 1">
+          <i class="fas fa-user"></i> User ID
+        </label>
+        <input 
+          type="text" 
+          id="user_id" 
+          name="user_id" 
+          class="login_input login_fade_item" 
+          style="--i: 1.1"
+          required
+          placeholder="Enter your user ID"
+        >
+      </div>
+
+      <div class="login_input_group">
+        <label for="password" class="login_label login_fade_item" style="--i: 1.5">
+          <i class="fas fa-lock"></i> Password
+        </label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="login_input login_fade_item" 
+          style="--i: 1.6"
+          required
+          placeholder="Enter your password"
+        >
+      </div>
+
+      <div class="login_options login_fade_item" style="--i: 2">
+        <label class="login_remember">
+          <input type="checkbox" name="remember">
+          Remember me
+        </label>
+        <a href="/forgot-password" class="login_forgot">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="login_button login_fade_item" style="--i: 2.5">
+        <span class="login_button_text">Sign In</span>
+        <i class="fas fa-arrow-right login_button_icon"></i>
+      </button>
+
+      <div class="login_footer login_fade_item" style="--i: 3">
+        Don't have an account? <a href="/register">Register here</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Animate elements on load
+      const items = document.querySelectorAll(".login_fade_item");
+      items.forEach(item => {
+        const delay = parseFloat(item.style.getPropertyValue('--i')) || 0;
+        setTimeout(() => {
+          item.classList.add("visible");
+        }, delay * 300);
+      });
+
+      // Add input focus effects
+      const inputs = document.querySelectorAll('.login_input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', () => {
+          input.parentElement.querySelector('.login_label').style.color = 'var(--login_accent)';
+          input.style.boxShadow = '0 0 0 3px var(--login_accent_light)';
+        });
+        
+        input.addEventListener('blur', () => {
+          input.parentElement.querySelector('.login_label').style.color = 'var(--login_text_faded)';
+          input.style.boxShadow = 'none';
+        });
+      });
+
+      // Button hover effect enhancement
+      const button = document.querySelector('.login_button');
+      button.addEventListener('mouseenter', () => {
+        button.querySelector('.login_button_icon').style.transform = 'translateX(5px)';
+      });
+      
+      button.addEventListener('mouseleave', () => {
+        button.querySelector('.login_button_icon').style.transform = 'translateX(0)';
+      });
+    });
+  </script>
+</body>
+</html>

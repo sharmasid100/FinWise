@@ -1,0 +1,546 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            overflow: auto;
+        }
+
+
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+        <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <!-- Sidebar -->
+    <div class="sidebar">
+    <div class="logo">
+        <i class="fas fa-wallet"></i>
+        <span>FinDash</span>
+    </div>
+    <ul class="side_nav-menu">
+        <li class="side_nav-item">
+            <a href="{{ url_for('dashboard') }}" class="side_nav-link active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+        <li class="side_nav-item">
+            <a href="{{ url_for('record') }}" class="side_nav-link">
+                <i class="fas fa-chart-line"></i>
+                <span>Record Transaction</span>
+            </a>
+        </li>
+        <li class="side_nav-item">
+            <a href="{{ url_for('transactions') }}" class="side_nav-link">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+        </li>
+        <li class="side_nav-item">
+            <a href="{{ url_for('goals') }}" class="side_nav-link">
+                <i class="fas fa-bullseye"></i>
+                <span>Goals</span>
+            </a>
+        </li>
+        <li class="side_nav-item">
+            <a href="{{ url_for('settings') }}" class="side_nav-link">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </li>
+         <li class="side_nav-item">
+            <a href="{{ url_for('home') }}" class="side_nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Financial Dashboard</h1>
+            <div class="date-filter">
+    <i class="fas fa-calendar-alt"></i>
+    <select id="timePeriodSelect" onchange="updateDashboard(this.value)">
+        <option value="week">Last Week</option>
+        <option value="month" selected>Last Month</option>
+        <option value="quarter">Last 90 Days</option>
+    </select>
+</div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="summary-card">
+                <h3>Total Income</h3>
+                <div class="amount">₹{{ "{:,.2f}".format(summary.income) }}</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>12% from last month</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <div class="amount">₹{{ "{:,.2f}".format(summary.expenses) }}</div>
+                <div class="trend down">
+                    <i class="fas fa-arrow-down"></i>
+                    <span>5% from last month</span>
+                </div>
+            </div>
+            <div class="summary-card">
+                <h3>Net Balance</h3>
+                <div class="amount">${{ "{:,.2f}".format(summary.net) }}</div>
+                <div class="trend up">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>22% from last month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Income vs Expenses</div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--income-green);"></div>
+                            <span>Income</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: var(--expense-red);"></div>
+                            <span>Expenses</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="incomeExpenseChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title">Expense Breakdown</div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="expensePieChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div class="transactions-card">
+            <div class="transactions-header">
+                <div class="transactions-title">Recent Transactions</div>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            <ul class="transactions-list">
+                {% for transaction in transactions[:5] %}
+                <li class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-indicator indicator-{{ transaction.type }}"></div>
+                        <div>
+                            <div class="transaction-description">{{ transaction.description }}</div>
+                            <div class="transaction-category">{{ transaction.category }}</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount amount-{{ transaction.type }}">
+                        {% if transaction.type == 'income' %}+{% else %}-{% endif %}₹{{ "%.2f"|format(transaction.amount) }}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endblock %}
+    {% block scripts %}
+    <script>
+        // Mobile menu functionality
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebar = document.querySelector(".sidebar"); // Changed to class selector
+const mobileOverlay = document.getElementById("mobileOverlay");
+let isMobileMenuOpen = false;
+
+function toggleMobileMenu() {
+    isMobileMenuOpen = !isMobileMenuOpen;
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
+
+    if (isMobileMenuOpen) {
+        sidebar.classList.add("mobile-open");
+        mobileOverlay.classList.add("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times"></i>';
+        mobileMenuBtn.style.left = 'calc(280px + 20px)'; // Adjust based on sidebar width
+    } else {
+        sidebar.classList.remove("mobile-open");
+        mobileOverlay.classList.remove("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.style.left = '20px';
+    }
+}
+
+mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+mobileOverlay.addEventListener("click", toggleMobileMenu);
+
+// Close mobile menu when clicking on navigation links
+document.querySelectorAll(".side_nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+        if (isMobileMenuOpen) {
+            toggleMobileMenu();
+        }
+    });
+});
+</script>
+<script>
+    
+    // Dashboard Controller
+    const Dashboard = (function() {
+        // Chart instances
+        let incomeExpenseChart = null;
+        let expensePieChart = null;
+        let currentTimePeriod = 'month'; // Default to last 30 days
+
+        // DOM Elements
+        const elements = {
+            timePeriodSelect: document.getElementById('timePeriodSelect'),
+            summaryCards: {
+                income: document.querySelector('.summary-card:nth-child(1) .amount'),
+                expenses: document.querySelector('.summary-card:nth-child(2) .amount'),
+                net: document.querySelector('.summary-card:nth-child(3) .amount')
+            },
+            transactionsList: document.querySelector('.transactions-list'),
+            incomeExpenseChart: document.getElementById('incomeExpenseChart'),
+            expensePieChart: document.getElementById('expensePieChart'),
+            trendIndicators: document.querySelectorAll('.trend')
+        };
+
+        // Initialize dashboard
+        function init() {
+            // Load initial data
+            loadDashboardData(currentTimePeriod);
+            
+            // Set up event listeners
+            if (elements.timePeriodSelect) {
+                elements.timePeriodSelect.value = currentTimePeriod;
+                elements.timePeriodSelect.addEventListener('change', handleTimePeriodChange);
+            }
+        }
+
+        // Event handlers
+        function handleTimePeriodChange() {
+            currentTimePeriod = this.value;
+            loadDashboardData(currentTimePeriod);
+        }
+
+        // Data loading
+        async function loadDashboardData(timePeriod) {
+            try {
+                showLoadingState(true);
+                
+                const response = await fetch(`/api/dashboard/data?time_period=${timePeriod}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error('Invalid data received from server');
+                }
+
+                updateDashboard(data);
+            } catch (error) {
+                console.error('Dashboard data loading error:', error);
+                showError(error);
+            } finally {
+                showLoadingState(false);
+            }
+        }
+
+        // Update dashboard components
+        function updateDashboard(data) {
+            updateSummaryCards(data.summary);
+            updateCharts(data.charts);
+            updateTransactions(data.transactions);
+            updateTrendIndicators(currentTimePeriod, data.trends); // Assuming trends data comes from backend
+        }
+
+        function updateSummaryCards(summary) {
+            if (!summary) return;
+            
+            const formatCurrency = amount => 
+                `₹${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            elements.summaryCards.income.textContent = formatCurrency(summary.income);
+            elements.summaryCards.expenses.textContent = formatCurrency(summary.expenses);
+            elements.summaryCards.net.textContent = formatCurrency(summary.net);
+        }
+
+        function updateCharts(chartData) {
+            if (!chartData) return;
+            
+            // Destroy existing charts
+            if (incomeExpenseChart) incomeExpenseChart.destroy();
+            if (expensePieChart) expensePieChart.destroy();
+            
+            // Create new charts if canvas elements exist
+            if (elements.incomeExpenseChart) {
+                incomeExpenseChart = createIncomeExpenseChart(chartData);
+            }
+            
+            if (elements.expensePieChart) {
+                expensePieChart = createExpensePieChart(chartData);
+            }
+        }
+
+function createIncomeExpenseChart(chartData) {
+    const ctx = elements.incomeExpenseChart.getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: chartData.labels, // ✅ fixed key
+            datasets: [
+                {
+                    label: 'Income',
+                    data: chartData.income,
+                    backgroundColor: 'rgba(0, 255, 170, 0.7)',
+                    borderColor: 'rgba(0, 255, 170, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                },
+                {
+                    label: 'Expenses',
+                    data: chartData.expenses,
+                    backgroundColor: 'rgba(255, 107, 107, 0.7)',
+                    borderColor: 'rgba(255, 107, 107, 1)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }
+            ]
+        },
+        options: getIncomeExpenseChartOptions()
+    });
+}
+
+
+function createExpensePieChart(chartData) {
+    const ctx = elements.expensePieChart.getContext('2d');
+    return new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: chartData.categories,
+            datasets: [{
+                data: chartData.category_totals,
+                backgroundColor: [
+                    '#00FFFF', '#00FFAA', '#0099FF',
+                    '#FF6B6B', '#FFD700', '#8A2BE2'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: getPieChartOptions()
+    });
+}
+
+
+        // Chart configuration options
+        function getIncomeExpenseChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: context => `${context.dataset.label}: ₹${context.raw.toFixed(2)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { callback: value => '₹' + value }
+                    }
+                }
+            };
+        }
+
+        function getPieChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 16,
+                            color: '#E0E0E0'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                const percentage = Math.round((context.raw / total) * 100);
+                                return `${context.label}: ₹${context.raw.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
+        function updateTransactions(transactions) {
+            if (!transactions || !elements.transactionsList) return;
+            
+            elements.transactionsList.innerHTML = transactions.map(t => `
+                <li class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-indicator indicator-${t.type}"></div>
+                        <div>
+                            <div class="transaction-description">${t.description}</div>
+                            <div class="transaction-category">${t.category} • ${t.date}</div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount amount-${t.type}">
+                        ${t.type === 'income' ? '+' : '-'}₹${t.amount.toFixed(2)}
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function updateTrendIndicators(timePeriod, trends) {
+            if (!elements.trendIndicators.length) return;
+            
+            // Use actual trend data if available, otherwise use placeholder
+            const trendData = trends || [
+                { direction: 'up', percentage: Math.floor(Math.random() * 20) + 5 },
+                { direction: 'down', percentage: Math.floor(Math.random() * 20) + 5 },
+                { direction: 'up', percentage: Math.floor(Math.random() * 20) + 5 }
+            ];
+            
+            elements.trendIndicators.forEach((el, index) => {
+                const trend = trendData[index] || trendData[0];
+                el.className = `trend ${trend.direction}`;
+                el.innerHTML = `<i class="fas fa-arrow-${trend.direction}"></i>
+                               <span>${trend.percentage}% from last ${timePeriod}</span>`;
+            });
+        }
+
+        // UI Utilities
+        function showLoadingState(show) {
+            const loader = document.getElementById('loadingIndicator') || createLoader();
+            loader.style.display = show ? 'block' : 'none';
+        }
+
+        function createLoader() {
+            const loader = document.createElement('div');
+            loader.id = 'loadingIndicator';
+            Object.assign(loader.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '10px 20px',
+                background: 'rgba(30, 30, 30, 0.9)',
+                color: 'var(--accent-cyan)',
+                border: '1px solid var(--accent-dark)',
+                borderRadius: '6px',
+                zIndex: '1000',
+                display: 'none'
+            });
+            loader.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading data...';
+            document.body.appendChild(loader);
+            return loader;
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorIndicator') || createErrorElement();
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 5000);
+        }
+
+        function createErrorElement() {
+            const errorEl = document.createElement('div');
+            errorEl.id = 'errorIndicator';
+            Object.assign(errorEl.style, {
+                position: 'fixed',
+                top: '20px',
+                right: '20px',
+                padding: '10px 20px',
+                background: 'rgba(255, 107, 107, 0.9)',
+                color: 'white',
+                borderRadius: '6px',
+                zIndex: '1000',
+                display: 'none'
+            });
+            document.body.appendChild(errorEl);
+            return errorEl;
+        }
+
+        // Public API
+        return {
+            init
+        };
+    })();
+
+
+    // Initialize dashboard when DOM is loaded
+    document.addEventListener('DOMContentLoaded', Dashboard.init);
+</script>
+    {% endblock %}
+</body>
+</html>

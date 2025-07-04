@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions | FinDash</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}">
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            background-color: var(--bg-dark);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--accent-cyan);
+        }
+
+        /* Filter controls */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-input {
+            padding: 8px 12px;
+            background-color: var(--card-bg);
+            color: var(--text-light);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background-color: var(--accent-cyan);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .show-all-btn {
+            background-color: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+        }
+
+        /* Transactions list */
+        .transactions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .transaction-item {
+            background-color: var(--card-bg);
+            border-radius: 8px 8px 8px 8px;
+            padding: 20px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transform: translateX(30px);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1),
+                opacity 0.3s ease;
+            
+        }
+
+        .transaction-item.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-left: 8px;
+        }
+
+        .transaction-indicator {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            ;
+            /* or any color you prefer */
+            margin-left: 5px;
+        }
+        .border-indicator-income {
+        border-left: 4px solid var(--income-green);
+        border-top: 1px solid var(--income-green);
+        }
+
+        .border-indicator-expense {
+        border-left: 4px solid var(--expense-red);
+        border-top: 1px solid var(--expense-red);
+        }
+
+        .indicator-income {
+            background-color: var(--income-green);
+            box-shadow: 0 0 8px var(--income-green);
+        }
+
+        .indicator-expense {
+            background-color: var(--expense-red);
+            box-shadow: 0 0 8px var(--expense-red);
+        }
+
+        .transaction-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transaction-description {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .transaction-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #a0a0a0;
+        }
+
+        .transaction-category {
+            font-weight: 500;
+            color: var(--text-lighter);
+        }
+
+        .transaction-date {
+            color: #a0a0a0;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding-right: 18px;
+        }
+
+        .amount-income {
+            color: var(--income-green);
+            text-shadow: 0 0 5px rgba(0, 255, 170, 0.3);
+        }
+
+        .amount-expense {
+            color: var(--expense-red);
+            text-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    {% extends "base.html" %}
+    {% block content %}
+        <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                <span>FinDash</span>
+            </div>
+            <ul class="side_nav-menu">
+                <li class="side_nav-item">
+                    <a href="{{ url_for('dashboard') }}" class="side_nav-link">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('record') }}" class="side_nav-link">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Record Transaction</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('transactions') }}" class="side_nav-link active">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('goals') }}" class="side_nav-link">
+                        <i class="fas fa-bullseye"></i>
+                        <span>Goals</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+                    <a href="{{ url_for('settings') }}" class="side_nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="side_nav-item">
+            <a href="{{ url_for('home') }}" class="side_nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+        </li>
+            </ul>
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Transactions</h1>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="filter-controls">
+                <div class="date-input-group">
+                    <label for="start-date">From:</label>
+                    <input type="date" id="start-date" class="date-input">
+                </div>
+                <div class="date-input-group">
+                    <label for="end-date">To:</label>
+                    <input type="date" id="end-date" class="date-input">
+                </div>
+                <button id="filter-btn" class="filter-btn">Apply Filter</button>
+                <button id="show-all-btn" class="filter-btn show-all-btn">Show All</button>
+            </div>
+
+            <!-- Transactions List -->
+            <ul class="transactions-list" id="transactions-list">
+                {% for transaction in transactions %}
+                <li class="transaction-item border-indicator-{{ transaction.type }}" :style="`animation-delay: ${index * 0.1}s`">
+                    <div class="transaction-info">
+                        <div class="transaction-indicator indicator-{{ transaction.type }}"></div>
+                        <div class="transaction-main">
+                            <div class="transaction-description">
+                                {{ transaction.description or 'No description' }}
+                            </div>
+                            <div class="transaction-meta">
+                                <span class="transaction-category">{{ transaction.category }}</span>
+                                <span class="transaction-date">{{ transaction.date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="transaction-amount amount-{{ transaction.type }}">
+                        {% if transaction.type == 'income' %}+{% else %}-{% endif %}₹{{
+                        "%.2f"|format(transaction.amount) }}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endblock %}
+    {%block scripts%}
+        <script>
+        // Mobile menu functionality
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebar = document.querySelector(".sidebar"); // Changed to class selector
+const mobileOverlay = document.getElementById("mobileOverlay");
+let isMobileMenuOpen = false;
+
+function toggleMobileMenu() {
+    isMobileMenuOpen = !isMobileMenuOpen;
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
+
+    if (isMobileMenuOpen) {
+        sidebar.classList.add("mobile-open");
+        mobileOverlay.classList.add("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times"></i>';
+        mobileMenuBtn.style.left = 'calc(280px + 20px)'; // Adjust based on sidebar width
+    } else {
+        sidebar.classList.remove("mobile-open");
+        mobileOverlay.classList.remove("show");
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.style.left = '20px';
+    }
+}
+
+mobileMenuBtn.addEventListener("click", toggleMobileMenu);
+mobileOverlay.addEventListener("click", toggleMobileMenu);
+
+// Close mobile menu when clicking on navigation links
+document.querySelectorAll(".side_nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+        if (isMobileMenuOpen) {
+            toggleMobileMenu();
+        }
+    });
+});
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set default dates (last 1 month)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(startDate.getMonth() - 1);
+
+            document.getElementById('start-date').valueAsDate = startDate;
+            document.getElementById('end-date').valueAsDate = endDate;
+
+            // Animate transactions on load
+            animateTransactions();
+
+            // Filter button click handler
+            document.getElementById('filter-btn').addEventListener('click', function () {
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+
+                if (!startDate || !endDate) {
+                    alert('Please select both start and end dates');
+                    return;
+                }
+
+                // Hide current transactions with animation
+                document.querySelectorAll('.transaction-item').forEach(item => {
+                    item.style.transform = 'translateX(30px)';
+                    item.style.opacity = '0';
+                });
+
+                // Simulate API call (replace with actual fetch)
+                setTimeout(() => {
+                    // In real implementation:
+                    // fetch(`/api/transactions?start=${startDate}&end=${endDate}`)
+                    //     .then(response => response.json())
+                    //     .then(data => renderTransactions(data));
+
+                    // For demo, just re-animate existing items
+                    animateTransactions();
+                }, 500);
+            });
+
+            // Show all button click handler
+            document.getElementById('show-all-btn').addEventListener('click', function () {
+                document.getElementById('start-date').value = '';
+                document.getElementById('end-date').value = '';
+                // Similar fetch logic as above
+            });
+
+            // Animation function
+            function animateTransactions() {
+                document.querySelectorAll('.transaction-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.transform = 'translateX(0)';
+                        item.style.opacity = '1';
+                    }, index * 100);
+                });
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="FinWise - Smart Personal Finance Management"
+    />
+    <title>FinWise – Smart Financial Aid</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <style>
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+    </style>
+  </head>
+  {%extends "base.html"%}
+  {%block content%}
+
+  <body>
+    <nav>
+      <div class="brand">FinWise</div>
+      <div class="nav-links" id="navLinks">
+        <a href="#home" class="active">Home</a>
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href = "register.html">
+        <button class="main_button">REGISTER</button>
+        </a>
+      </div>
+    </nav>
+
+    <div class="scroll-container">
+      <!-- Home Section -->
+      <section class="page-section" id="home">
+        <div class="hero">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1>Take Control of Your Financial Future</h1>
+              <p>
+                FinWise empowers you to track, plan, and optimize your finances
+                with intuitive tools and actionable insights. Build wealth with
+                confidence.
+              </p>
+              <div class="cta-buttons">
+                {% if current_user.user_id %}
+                <a href="{{ url_for('dashboard') }}">
+                  <button type="button" class="main_button filled">
+                    GET STARTED
+                  </button>
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}">
+                  <button type="button" class="main_button filled">
+                    GET STARTED
+                  </button>
+                </a>
+                {% endif %}
+                <a href="{{url_for('learnmore')}}">
+                <button class="main_button">LEARN MORE</button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="hero-image">
+            <img src="{{ url_for('static', filename='images/home_bg.jpg') }}" alt="FinWise Dashboard" loading="lazy" />
+          </div>
+        </div>
+      </section>
+      
+      <!-- Features Section -->
+      <section class="page-section" id="features">
+        <div style="width: 100%">
+          <h2 class="section-title">FEATURES</h2>
+          <div class="features-container">
+            <div class="feature-card">
+              <i class="fas fa-chart-line"></i>
+              <h3>Smart Analytics</h3>
+              <p>
+                Advanced algorithms analyze your spending patterns and provide
+                personalized recommendations.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-wallet"></i>
+              <h3>Budget Tracking</h3>
+              <p>
+                Set budgets and get real-time notifications when you're
+                approaching your limits.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-piggy-bank"></i>
+              <h3>Savings Goals</h3>
+              <p>
+                Plan for the future with customizable savings goals and progress
+                tracking.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-credit-card"></i>
+              <h3>Bill Reminders</h3>
+              <p>
+                Never miss a payment with automated bill reminders and due date
+                alerts.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-university"></i>
+              <h3>Investment Tracking</h3>
+              <p>
+                Monitor all your investments in one place with performance
+                analytics.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-shield-alt"></i>
+              <h3>Bank-Level Security</h3>
+              <p>
+                256-bit encryption protects your financial data at all times.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-sync-alt"></i>
+              <h3>Auto-Sync</h3>
+              <p>
+                Connect your bank accounts for automatic transaction updates.
+              </p>
+            </div>
+            <div class="feature-card">
+              <i class="fas fa-file-invoice-dollar"></i>
+              <h3>Tax Reports</h3>
+              <p>
+                Generate tax-ready reports with categorized income and expenses.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section class="page-section" id="about">
+        <div class="about-content">
+          <h2 class="section-title">ABOUT</h2>
+          <p>
+            Founded in 2023, FinWise is on a mission to democratize financial
+            wellness. We believe everyone deserves access to powerful tools that
+            make managing money simple and rewarding. Our platform combines
+            cutting-edge technology with financial expertise to help you make
+            smarter decisions with your money.
+          </p>
+          <p>
+            Whether you're just starting your financial journey or looking to
+            optimize your existing strategy, FinWise adapts to your needs and
+            grows with you.
+          </p>
+
+          <div class="stats-container">
+            <div class="stat-card">
+              <div class="stat-number">50K+</div>
+              <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">$1B+</div>
+              <div class="stat-label">Assets Tracked</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Support</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Secure</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact/Footer Section -->
+      <section
+        class="page-section"
+        id="contact"
+        style="background-color: var(--bg-darker); align-items: flex-start"
+      >
+        <footer>
+          <div class="footer-content">
+            <div class="footer-column">
+              <h3>FinWise</h3>
+              <p style="color: var(--text-lighter)">
+                Your personal finance companion for a brighter financial future.
+              </p>
+              <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+              </div>
+            </div>
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+              </ul>
+            </div>
+            <div class="footer-column">
+              <h3>Resources</h3>
+              <ul>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Help Center</a></li>
+                <li><a href="#">Tutorials</a></li>
+                <li><a href="#">API Docs</a></li>
+              </ul>
+            </div>
+            <div class="footer-column">
+              <h3>Contact Us</h3>
+              <ul>
+                <li><i class="fas fa-envelope"></i> hello@finwise.app</li>
+                <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+                <li>
+                  <i class="fas fa-map-marker-alt"></i> 123 Finance St, San
+                  Francisco, CA
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="copyright">
+            &copy; 2023 FinWise. All rights reserved. |
+            <a href="#" style="color: var(--accent-green)">Privacy Policy</a> |
+            <a href="#" style="color: var(--accent-green)">Terms of Service</a>
+          </div>
+        </footer>
+      </section>
+    </div>
+    {%endblock%}
+      {%block scripts%}
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Function to initialize scroll effects
+    function initScrollEffects() {
+      if (window.innerWidth > 768) {
+        // Intersection Observer for scroll animations and nav highlighting
+        const sections = document.querySelectorAll(".page-section");
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                // Hide all other sections
+                sections.forEach((sec) => sec.classList.remove("active"));
+
+                // Show only the one in view
+                entry.target.classList.add("active");
+              }
+            });
+          },
+          { threshold: 0.6 }
+        );
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute("href");
+            const targetElement = document.querySelector(targetId);
+
+            if (targetElement) {
+              targetElement.scrollIntoView({
+                behavior: "smooth",
+              });
+            }
+          });
+        });
+      }
+
+      // Floating animation for feature cards (works on all devices)
+      const featureCards = document.querySelectorAll(".feature-card");
+      featureCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add("floating");
+      });
+    }
+
+    // Initialize on load
+    initScrollEffects();
+
+    // Re-initialize on window resize
+    window.addEventListener('resize', function() {
+      initScrollEffects();
+    });
+  });
+</script>
+    {%endblock%}
+  </body>
+</html>

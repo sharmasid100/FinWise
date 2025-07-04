@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+{% block title %}FinWise - Smart Finance{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    html {
+      scroll-behavior: smooth;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-darker);
+      color: var(--text-light);
+      line-height: 1.6;
+      padding-top: 70px; 
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .container {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 70px;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo i {
+      color: var(--accent-green);
+      font-size: 1.8rem;
+    }
+
+    .logo h1 {
+      font-size: 1.8rem;
+      background: linear-gradient(to right, var(--accent-cyan), var(--accent-green));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-links {
+      display:inline;
+      gap: 1.5rem;
+    }
+
+    .nav-links a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent-green);
+    }
+
+    /* Main Content Sections */
+    section {
+      padding: 3rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      position: relative;
+      padding-top: 8rem;
+      padding-bottom: 4rem;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0,255,204,0.1) 0%, rgba(0,0,0,0) 70%);
+      z-index: -1;
+    }
+
+    .hero-image {
+      width: 100%;
+      max-width: 300px;
+      margin: 1.5rem auto;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px var(--accent-green);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .hero h2 {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--text-light), var(--accent-green));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-lighter);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Features */
+    .features h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      color: var(--accent-green);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: transparent;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid var(--accent-cyan);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px var(--accent-cyan);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .feature-icon i {
+      color: var(--bg-darker);
+      font-size: 1.5rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: var(--accent-green);
+    }
+
+    /* Stats */
+    .stats {
+      background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+    }
+
+    .stats-container {
+      display: flex;
+      flex-direction: column;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem , 1.5rem;
+      background: transparent;
+      border-radius: 12px;
+      border-color: 1px solid var(--text-light);
+    }
+
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--accent-green), var(--accent-cyan));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    /* CTA */
+    .cta h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent-green);
+    }
+
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s;
+      min-width: 200px;
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-cyan));
+      color: var(--bg-darker);
+    }
+
+    .button-secondary {
+      border: 2px solid var(--accent-green);
+      color: var(--accent-green);
+    }
+
+    .button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px var(--accent-cyan);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--bg-darker);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .footer-links h3 {
+      color: var(--accent-green);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: var(--text-lighter);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent-green);
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .social-links a {
+      color: var(--text-lighter);
+      font-size: 1.5rem;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover {
+      color: var(--accent-green);
+    }
+
+    .copyright {
+      color: var(--text-lighter);
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding-top: 60px;
+      }
+      
+      header {
+        height: 60px;
+        padding: 0.5rem 1rem;
+      }
+      
+      .nav-links {
+        gap: 1rem;
+      }
+      
+      section {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<header>
+  
+    <nav class="nav-links">
+      <div class="header-content">
+    <div class="logo">
+      <i class="fas fa-wallet"></i>
+      <h1>FinWise</h1>
+    </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h2>Smart Finance Made Simple</h2>
+    <p>Take control of your money with powerful tools designed to help you save, invest, and grow your wealth effortlessly.</p>
+    <img src="{{url_for('static', filename='images/home_bg.jpg')}}" alt="Finance app dashboard" class="hero-image">
+    <div class="cta-buttons">
+      <div class="cta-buttons">
+                {% if current_user.user_id %}
+                <a href="{{ url_for('dashboard') }}">
+                  <button type="button" class="main_button filled">
+                    GET STARTED
+                  </button>
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}">
+                  <button type="button" class="main_button filled">
+                    GET STARTED
+                  </button>
+                </a>
+                {% endif %}
+      <a href="{{url_for('learnmore')}}" class="button button-secondary">Learn More</a>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <h2>Powerful Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <h3>Budget Tracking</h3>
+        <p>Monitor spending and stay on budget with real-time alerts and insights.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <h3>Smart Analytics</h3>
+        <p>Visualize your finances with beautiful charts and actionable reports.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-piggy-bank"></i>
+        </div>
+        <h3>Savings Goals</h3>
+        <p>Set and track financial goals with personalized recommendations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bell"></i>
+        </div>
+        <h3>Investment Tracking</h3>
+        <p>Monitor all your investments in one place with performance
+        analytics.</p>
+      </div>
+    </div>
+  </section>
+
+ <section id="about" class="features">
+    <h2>About</h2>
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-number">50K+</div>
+        <p>Active Users</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">$1B+</div>
+        <p>Assets Managed</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">24/7</div>
+        <p>Support</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">100%</div>
+        <p>Secure</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2>New to FinWise?</h2>
+    <div class="cta-buttons">
+      <a href="/register" class="button button-primary">Create Free Account</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <div>
+        <h3>Product</h3>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Security</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="social-links">
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin"></i></a>
+    </div>
+    <p class="copyright">&copy; 2025 FinWise. All rights reserved.</p>
+  </div>
+</footer>
+{% endblock %}
