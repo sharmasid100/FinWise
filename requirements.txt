@@ -6,3 +6,4 @@ Flask-WTF
 python-dotenv
 PyJWT
 Werkzeug
+gunicorn==21.2.0
